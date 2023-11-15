@@ -3,10 +3,11 @@ pragma solidity ^0.8.13;
 
 import "forge-std/Test.sol";
 import {WorldWarIV, WorldWarIVMitigationFactory } from "../src/WorldWar4.sol"; 
+import {IWorldWar4_MitigationFactory} from "../src/interface/IWorldWarIV_MitigationFactory.sol";
 import "forge-std/console.sol";
 
 contract CounterTest is Test {
-    WorldWarIV worldwar;
+    //WorldWarIV worldwar;
     address admin = makeAddr("admin");
     address hacker = makeAddr("hacker");
     address voter1 = makeAddr("voter1");
@@ -21,10 +22,13 @@ contract CounterTest is Test {
     string [] CandidatesNames;
     WorldWarIVMitigationFactory factory;
     bytes32 _id;
+    IWorldWar4_MitigationFactory worldwar;
+
     
     function setUp() public {
         factory = new WorldWarIVMitigationFactory(PeaceAdmin);
-        worldwar = new WorldWarIV(admin, 3 hours, 1 days,factory, _id);
+        worldwar = factory.deployPeace(admin, 3 hours, 1 days);
+        //worldwar = new WorldWarIV(admin, 3 hours, 1 days,factory, _id);
         generatevotersArray();
         vm.prank(admin);
         registerVoters();
@@ -64,7 +68,32 @@ contract CounterTest is Test {
 
     // }
 
-    
+    function testVoting() public {
+        vm.warp(block.timestamp + 3 hours);
+        vm.prank(voter2);
+        worldwar.vote(0);
+        vm.warp(block.timestamp + 1 days);
+        vm.prank(admin);
+        (bool a,) = worldwar.voteSortingAlgorithm();
+        bool truth = worldwar.votingEndedWithAWinner();
+        assertTrue( truth);
+    }
+
+    function testrevertOnDoubleVoteAttempt()public {
+        // vm.prank(voter2);
+        // worldwar.vote(0);
+        // vm.prank(admin);
+        // worldwar.voteSortingAlgorithm();
+        // bool truth = worldwar.votingEndedWithAWinner;
+        // assertTrue( truth);
+    }
+
+    ///////////////////////////////////
+    //        Expected Reverts      //
+    /////////////////////////////////
+
+    ///////////////////////////////////
+    //        Expected Reverts      //
+    /////////////////////////////////
 
 }
-  
