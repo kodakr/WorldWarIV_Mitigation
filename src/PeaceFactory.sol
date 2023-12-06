@@ -4,6 +4,7 @@ pragma solidity ^0.8.13;
 import {WorldWarIV} from "./WorldWar4.sol";
 import {IWorldWar4_Mitigation} from "./interface/IWorldWar4_Mitigation.sol";
 import {IWorldWar4_MitigationFactory} from "./interface/IWorldWarIV_MitigationFactory.sol";
+import {VRFv2Consumer} from "./VRFv2Consumer.sol";
 
 contract WorldWarIVMitigationFactory is IWorldWar4_MitigationFactory {
     ///////////////////////////////////////////////////======Custom Datatype======///////////////////////////////////////////////////
@@ -15,12 +16,14 @@ contract WorldWarIVMitigationFactory is IWorldWar4_MitigationFactory {
     uint256 public fee;
     address payable public peaceAdmin;
     address feeRecipient;
+    bool chainlinktInitialized;
     mapping(bytes32 contractUniqueDeployID => address) deployedContracts;
     mapping(bytes32 contractUniqueDeployID => Record) ArchiveConclusive;
     mapping(bytes32 contractUniqueDeployID => string[] Names) ArchiveInconclusive;
     mapping(address => bool) recordsUpdated;
-
     uint256 private a;
+    VRFv2Consumer VRFconsumerContract;
+
     ///////////////////////////////////////////////////======Error Declarations======///////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -28,6 +31,9 @@ contract WorldWarIVMitigationFactory is IWorldWar4_MitigationFactory {
     error InvalidSender();
     error RecordAlreadyUpdated();
     error InsufficientFee(uint256 _fee);
+    error ChainlinkAlreadyInitialized();
+    error VRFv2InitializationFailed();
+    error InvalidNumbersGenerated();
 
     ///////////////////////////////////////////////////======Events======////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -53,11 +59,19 @@ contract WorldWarIVMitigationFactory is IWorldWar4_MitigationFactory {
         }
         _;
     }
+
+    modifier initilizer(){
+        if (chainlinktInitialized) revert ChainlinkAlreadyInitialized();
+        _;
+    }
     ///////////////////////////////////////////////////======StateChangers======/////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     constructor(address _peaceAdmin) {
         peaceAdmin = payable(_peaceAdmin);
+        _initializeChainlinkVRFv2();
+        if (address(VRFconsumerContract) == address(0))  revert VRFv2InitializationFailed();
+        chainlinktInitialized = true;
     }
 
     function deployPeace(address _owner, uint256 _timeUntilVotingStarts, uint256 _timeUntilVotingEnds)
@@ -71,7 +85,10 @@ contract WorldWarIVMitigationFactory is IWorldWar4_MitigationFactory {
         Peace = IWorldWar4_Mitigation(newPeace);
     }
 
-    function immediateVoting() public {}
+    // function immediateVoting(address _owner, uint _timeUntilVotingStarts, uint _timeUntilVotingEnds) public payable returns (IWorldWar4_Mitigation Peace) {
+    //     Peace = deployPeace{value: msg.value} (_owner,_timeUntilVotingStarts,_timeUntilVotingEnds);
+
+    // }
 
     function adminConfig(address _admin, uint256 _fee) public PeaceAdminOnly returns (bool) {
         //
@@ -91,6 +108,11 @@ contract WorldWarIVMitigationFactory is IWorldWar4_MitigationFactory {
     function updateRecordsForInconclusive(string[] memory _forSorting, bytes32 _id) external Check(_id) {
         ArchiveInconclusive[_id] = _forSorting;
         recordsUpdated[msg.sender] = true;
+    }
+
+    function _initializeChainlinkVRFv2() internal initilizer {
+        VRFconsumerContract = new VRFv2Consumer(7497);
+        
     }
 
     ///////////////////////////////////////////////////======Utils======/////////////////////////////////////////////////////////////
@@ -121,7 +143,23 @@ contract WorldWarIVMitigationFactory is IWorldWar4_MitigationFactory {
     //VRFV2Consumer address on Sepolia 0x93fe8684B7083150fDC767d5Cbb9F9cF6d51AfAB
     // consumer ID 7497
 
-    function generateUniqueRandomIdWithChainlinkVRV2F() internal returns (bytes32 _id) {
+    function generateUniqueRandomIdWithChainlinkVRV2F() internal returns (bytes32 _uniqueID) {
+        //return keccak256(abi.encode(++a));
+        uint requestId = VRFconsumerContract.requestRandomWords();
+        (, uint256[] memory randomWords) = VRFconsumerContract.getRequestStatus(requestId);
+        uint cacheLengthOfRandomWords = randomWords.length;
+        
+        for(uint i; i < cacheLengthOfRandomWords; i++) {
+           _uniqueID = keccak256(abi.encode(randomWords[i]));
+            if (deployedContracts[_uniqueID] == address(0)) {
+                return _uniqueID;
+            }
+            if (i == cacheLengthOfRandomWords - 1) revert InvalidNumbersGenerated(); // revert if all generated numbers have been used previously
+
+        }
+        
+    }
+    function generateUniqueIdForFoundryLocalTest() internal returns (bytes32) {
         return keccak256(abi.encode(++a));
     }
 
@@ -147,7 +185,7 @@ contract WorldWarIVMitigationFactory is IWorldWar4_MitigationFactory {
     //This funct is only for destroying testnet version
 
     function selfdestructcontract() public {
-        selfdestruct(peaceAdmin);
+        //selfdestruct(peaceAdmin);
     }
 
     receive() external payable {}

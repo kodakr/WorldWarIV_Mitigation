@@ -87,7 +87,7 @@ contract CounterTest is Test {
         console.log("kkkkkkk++", _winner.Name);
         assertEq0(bytes(bb), bytes("Abraham Lincoln"));
         assertTrue(truth);
-        //assertTrue(a);
+        assertTrue(a);
     }
     // function testConstructor() public {
 

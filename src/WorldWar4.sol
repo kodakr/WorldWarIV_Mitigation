@@ -123,9 +123,9 @@ contract WorldWarIV is
      */
 
     function RegisterVoters(address[] memory _voters) public OnlyAdmin returns (bool) {
-        for (uint256 i = 0; i < _voters.length; i++) {
+        for (uint256 i = 0; i < _voters.length; i++) {  
+            //Security: Skips any possible inclusion of null address and previously voted addrress
             if (_voters[i] != address(0) && (!voted[_voters[i]])) {
-                //Security: Skips any possible inclusion of null address and previously voted addrress
                 RegisteredVoters[_voters[i]] = true;
                 emit VoterRegistered(_voters[i]);
             }
@@ -180,7 +180,9 @@ contract WorldWarIV is
         Won = EndedWithAWinner;
         Inconclusive = EndedAsDrawOrInconclusive;
     }
-
+    /**
+    @dev silently skips invalid and returns no. of invalid voters / addreses
+     */
     function batchVoting(bytes[] calldata sig) external {}
 
     //////////////////////////////////////////////////======Utils======//////////////////////////////////////////////////////////////
