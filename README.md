@@ -36,14 +36,18 @@ Code is robust.
 2. **Chainlink CCIP**
     - Enabling anyone to vote from convinient chain.
 
-## Note
+## Developer
+This is a solo-psychic project. developed by a solo team.
+[Project Developer](https://twitter.com/Kodak_Rome)
 
-This project isn't confined to a specific niche but aims to revolutionize decision-making for all humans globally. It's a comprehensive intervention with limitless potential, transcending boundaries to create fair and transparent decision-making processes.
+#### Beware
+Perhaps unnecessary but worthy of note:
+The impact of this project is not specific to a niche of humans (eg: DeFi) but rather a project impacting all humans currently on earth and will ever be. 
+A gift from the constellations to "The Constellations" as its role in mitigating World War IV. A psychic Intervention. 
 
-**Disclaimer:** This project aims to address global decision-making issues and doesn't exaggerate its impact. It's a sincere attempt to revolutionize decision-making processes.
 
 ---
 
 
-[Project Developer](https://twitter.com/Kodak_Rome)
+
 
