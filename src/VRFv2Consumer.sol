@@ -65,6 +65,7 @@ contract VRFv2Consumer is VRFConsumerBaseV2, ConfirmedOwner {
      * HARDCODED FOR SEPOLIA
      * COORDINATOR: 0x8103B0A8A00be2DDC778e6e7eaa21791Cd364625
      */
+     //0x8103B0A8A00be2DDC778e6e7eaa21791Cd364625 sepolia
     constructor(
         uint64 subscriptionId
     )

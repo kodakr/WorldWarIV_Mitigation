@@ -3,7 +3,7 @@ pragma solidity ^0.8.13;
 
 import "forge-std/Test.sol";
 import "forge-std/console.sol";
-import {WorldWarIV, WorldWarIVMitigationFactory} from "../src/WorldWar4.sol";
+import {WorldWarIV_Mitigation, WorldWarIVMitigationFactory} from "../src/WorldWar4.sol";
 import {IWorldWar4_MitigationFactory, IWorldWar4_Mitigation} from "../src/interface/IWorldWarIV_MitigationFactory.sol";
 //import {IWorldWar4_Mitigation} from "../src/interface/IWorldWar4_Mitigation.sol";
 import {MitigationScript} from "../script/Counter.s.sol";
@@ -21,7 +21,7 @@ contract CounterTest is Test {
     address nonVoter1 = makeAddr("nonVoter1");
     address[] registerVotersArray;
     address Router;
-    WorldWarIV.Candidate[] _candidates;
+    WorldWarIV_Mitigation.Candidate[] _candidates;
     string[] CandidatesNames;
     WorldWarIVMitigationFactory factory;
     bytes32 _id;
@@ -30,7 +30,7 @@ contract CounterTest is Test {
 
     function setUp() public {
         script = new MitigationScript();
-        address payable Factory = script.run(PeaceAdmin);
+        address payable Factory = script.run();
         factory = WorldWarIVMitigationFactory(Factory);
         worldwar = factory.deployPeace(admin, 3 hours, 1 days,Router);
         //worldwar = new WorldWarIV(admin, 3 hours, 1 days,factory, _id);
@@ -105,7 +105,7 @@ contract CounterTest is Test {
         worldwar.vote(0);
         vm.warp(block.timestamp + 2 hours);
         //attempt second voting
-        vm.expectRevert(WorldWarIV.NotARegisteredVoter.selector);
+        vm.expectRevert(WorldWarIV_Mitigation.NotARegisteredVoter.selector);
         vm.prank(voter2);
         worldwar.vote(0);
     }

@@ -35,6 +35,10 @@ Code is robust.
     - Ensures distinct `bytes32 _uniqueId` for all instances.
 2. **Chainlink CCIP**
     - Enabling anyone to vote from convinient chain.
+## Factory contract
+ `address factory = 0x691162D966A43f43700545577d0C3b54E69c95ED;`
+ `string Chaindeployed = "sepolia;"`
+ `string contractName = "WorldWarIVMitigationFactory";`
 
 ## Developer
 This is a solo, psychic project. developed by a solo team.

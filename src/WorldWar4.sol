@@ -11,11 +11,13 @@ import {CCIPReceiver} from "@chainlink/contracts-ccip/src/v0.8/ccip/applications
 
 //author: https://twitter.com/Kodak_Rome
 
-contract WorldWarIV is CCIPReceiver,EIP712("WorldWar4", "1"),
-    IWorldWar4_Mitigation //WorldWarIV_Mitigation
+contract WorldWarIV_Mitigation is CCIPReceiver,EIP712("WorldWar4", "1"), //
+    IWorldWar4_Mitigation 
 {
     ///////////////////////////////////////////////////======Custom Datatype======///////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // All custom Data-type are imported Fron interface IWorldWar4_Mitigation
 
     ///////////////////////////////////////////////////======State Variables======///////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -65,13 +67,16 @@ contract WorldWarIV is CCIPReceiver,EIP712("WorldWar4", "1"),
     //Security: a map of valid and registered Voters. Only them can Vote to prevent sybil attack on election
     mapping(address => bool) private RegisteredVoters;
 
-    
+    //mapping of candidates Id to candidate
     mapping(uint256 Id => Candidate) RegisteredCandidates;
 
+    //If voter has voted
     mapping(address => bool) voted;
 
+    //attempted but failed voters
     mapping(address => bool) failedVoters;
 
+    //succesful voters via CCIP route
     mapping (address => bool) succesfulCCIPVoter;
 
     ///////////////////////////////////////////////////======Errors Declaration======///////////////////////////////////////////////////
@@ -81,7 +86,7 @@ contract WorldWarIV is CCIPReceiver,EIP712("WorldWar4", "1"),
     error OnlyAdminAllowed();
     error InvalidNumOfVoters();
     error VotingShouldStartASAP();
-    error CandidatesAlreadyRegistered();
+    error CandidatesRegisterationEnded();
     error NotVotingPeriod();
     error NotARegisteredVoter();
     error InvalidIdRange();
@@ -108,7 +113,7 @@ contract WorldWarIV is CCIPReceiver,EIP712("WorldWar4", "1"),
 
     //This ensures that a candidates' registration is a on is only registered once
     modifier OneTimeOperation() {
-        if (candidatesRegistrationDone) revert CandidatesAlreadyRegistered();
+        if (candidatesRegistrationDone) revert CandidatesRegisterationEnded();
         _;
     }
 
