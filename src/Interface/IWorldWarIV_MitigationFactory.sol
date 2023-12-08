@@ -12,7 +12,7 @@ interface IWorldWar4_MitigationFactory {
     }
 
     function withdrawFees(address _collector) external;
-    function deployPeace(address _owner, uint256 _timeUntilVotingStarts, uint256 _timeUntilVotingEnds)
+    function deployPeace(address _owner, uint256 _timeUntilVotingStarts, uint256 _timeUntilVotingEnds, address CCIPRouter)
         external
         payable
         returns (IWorldWar4_Mitigation Peace);

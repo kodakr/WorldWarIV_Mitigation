@@ -17,10 +17,13 @@ contract WorldWarIVMitigationFactory is IWorldWar4_MitigationFactory {
     address payable public peaceAdmin;
     address feeRecipient;
     bool chainlinktInitialized;
+    uint public feedbkCount;
+    uint constant LOCALFOUNDRYCHAINID = 31337;
     mapping(bytes32 contractUniqueDeployID => address) deployedContracts;
     mapping(bytes32 contractUniqueDeployID => Record) ArchiveConclusive;
     mapping(bytes32 contractUniqueDeployID => string[] Names) ArchiveInconclusive;
     mapping(address => bool) recordsUpdated;
+    mapping(uint => bytes) feedBacks;
     uint256 private a;
     VRFv2Consumer VRFconsumerContract;
 
@@ -28,6 +31,7 @@ contract WorldWarIVMitigationFactory is IWorldWar4_MitigationFactory {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     error AdminOnlyFunction();
+    error ExceedsFeedBackLength();
     error InvalidSender();
     error RecordAlreadyUpdated();
     error InsufficientFee(uint256 _fee);
@@ -41,6 +45,7 @@ contract WorldWarIVMitigationFactory is IWorldWar4_MitigationFactory {
     event PeaceDeployed(address indexed Peace, address deployer, address admin);
     event ArchiveUpdated(bytes32 id);
     event ConfigurationUpdated();
+    event FeedbackReceived(address sender);
 
     ///////////////////////////////////////////////////======Modifiers======/////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -74,14 +79,14 @@ contract WorldWarIVMitigationFactory is IWorldWar4_MitigationFactory {
         chainlinktInitialized = true;
     }
 
-    function deployPeace(address _owner, uint256 _timeUntilVotingStarts, uint256 _timeUntilVotingEnds)
+    function deployPeace(address _owner, uint256 _timeUntilVotingStarts, uint256 _timeUntilVotingEnds, address CCIPRouter)
         public
         payable
         returns (IWorldWar4_Mitigation Peace)
     {
         uint256 cachedMsgValue = msg.value;
         if (cachedMsgValue < fee) revert InsufficientFee(fee);
-        address newPeace = _deploy(_owner, _timeUntilVotingStarts, _timeUntilVotingEnds);
+        address newPeace = _deploy(_owner, _timeUntilVotingStarts, _timeUntilVotingEnds,CCIPRouter);
         Peace = IWorldWar4_Mitigation(newPeace);
     }
 
@@ -97,15 +102,16 @@ contract WorldWarIVMitigationFactory is IWorldWar4_MitigationFactory {
             peaceAdmin = payable(_admin);
         }
         return true;
-    }
+    } //callbackOnWinning
+    //callbackOnIncocnclusive
 
-    function updateRecordsForWinner(WorldWarIV.Candidate memory _winner, bytes32 _id) external Check(_id) {
+    function updateRecordsForWinnerCallback(WorldWarIV.Candidate memory _winner, bytes32 _id) external Check(_id) {
         string memory cacheName = _winner.Name;
         ArchiveConclusive[_id] = Record({Contract: msg.sender, Winner: cacheName, Inconclusive: false});
         recordsUpdated[msg.sender] = true;
     }
 
-    function updateRecordsForInconclusive(string[] memory _forSorting, bytes32 _id) external Check(_id) {
+    function updateRecordsForInconclusiveCallback(string[] memory _forSorting, bytes32 _id) external Check(_id) {
         ArchiveInconclusive[_id] = _forSorting;
         recordsUpdated[msg.sender] = true;
     }
@@ -115,40 +121,61 @@ contract WorldWarIVMitigationFactory is IWorldWar4_MitigationFactory {
         
     }
 
+    function feedBack (string memory _feedback) external returns(bool success){
+        bytes memory feedBack_ = abi.encodePacked(_feedback);
+        if (feedBack_.length > 250 ) revert ExceedsFeedBackLength();
+        feedBacks[++feedbkCount] = feedBack_;
+        success = true;
+        emit FeedbackReceived(msg.sender);
+    }
+
+    
+
     ///////////////////////////////////////////////////======Utils======/////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    function _deploy(address _owner, uint256 _timeUntilVotingStarts, uint256 _timeUntilVotingEnds)
+    function _deploy(address _owner, uint256 _timeUntilVotingStarts, uint256 _timeUntilVotingEnds, address CCIPRouter)
         internal
         returns (address peace)
     {
-        bytes32 _Id = generateUniqueRandomIdWithChainlinkVRV2F(); // used as salt
+        bytes32 UniqueId; // used as salt
+        if (block.chainid != LOCALFOUNDRYCHAINID) {
+            UniqueId = generateUniqueRandomIdWithChainlinkVRV2F();
+        } else {
+            UniqueId = generateUniqueIdForFoundryLocalTest();
+        }
 
         bytes memory creationCode = abi.encodePacked(
             type(WorldWarIV).creationCode, 
-            abi.encode(_owner, _timeUntilVotingStarts, _timeUntilVotingEnds, this, _Id)
+            abi.encode(_owner, _timeUntilVotingStarts, _timeUntilVotingEnds, this, UniqueId, CCIPRouter)
         );
         // Just so u know I fuck in assembly too. lol!
         assembly {
-            peace := create2(0, add(creationCode, 0x20), mload(creationCode), _Id)
+            peace := create2(0, add(creationCode, 0x20), mload(creationCode), UniqueId)
             if iszero(extcodesize(peace)) {
                 revert(0, 0)
             }
         }
 
-        // peace = address( new WorldWarIV{salt: _Id}(_owner,_timeUntilVotingStarts, _timeUntilVotingEnds, this, _Id)); // @audit without salt
-        // deployedContracts[_Id] = peace;
     }
 
     //VRFV2Consumer address on Sepolia 0x93fe8684B7083150fDC767d5Cbb9F9cF6d51AfAB
     // consumer ID 7497
-
+    /**
+    @dev this function generates randon Nums from VRFv2. Note that the consumer contract has deployed durin initialization.
+    And its owned by this factory contract. Hence factory can simply call for Rand num generation.
+    The design implemented here to ensure "UniqueIdGeneration" is 
+    1. Fetching two RandNum,
+    2. If one has been previously used (checks mapping), then the 2nd is used.
+    3. if both , Reverts. 
+     */
     function generateUniqueRandomIdWithChainlinkVRV2F() internal returns (bytes32 _uniqueID) {
-        //return keccak256(abi.encode(++a));
+        
         uint requestId = VRFconsumerContract.requestRandomWords();
         (, uint256[] memory randomWords) = VRFconsumerContract.getRequestStatus(requestId);
         uint cacheLengthOfRandomWords = randomWords.length;
-        
+        //UniqueIdGeneration: If rand number has been previously used, then uses the 2nd RandNum. If both
+        //are used, Reverts (Extremely rare)
         for(uint i; i < cacheLengthOfRandomWords; i++) {
            _uniqueID = keccak256(abi.encode(randomWords[i]));
             if (deployedContracts[_uniqueID] == address(0)) {
@@ -182,10 +209,10 @@ contract WorldWarIVMitigationFactory is IWorldWar4_MitigationFactory {
         (bool success,) = _collector.call{value: cachebal}("");
         require(success, "withdrawal failed");
     }
-    //This funct is only for destroying testnet version
 
-    function selfdestructcontract() public {
-        //selfdestruct(peaceAdmin);
+    function getFeedBack(uint count) public view returns(string memory){
+        bytes memory feedBackBytes = feedBacks[count];
+        return abi.decode(abi.encode(feedBackBytes), (string));
     }
 
     receive() external payable {}

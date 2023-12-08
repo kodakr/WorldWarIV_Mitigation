@@ -20,6 +20,7 @@ contract CounterTest is Test {
     address voter5 = makeAddr("voter5");
     address nonVoter1 = makeAddr("nonVoter1");
     address[] registerVotersArray;
+    address Router;
     WorldWarIV.Candidate[] _candidates;
     string[] CandidatesNames;
     WorldWarIVMitigationFactory factory;
@@ -31,8 +32,7 @@ contract CounterTest is Test {
         script = new MitigationScript();
         address payable Factory = script.run(PeaceAdmin);
         factory = WorldWarIVMitigationFactory(Factory);
-        //factory = new WorldWarIVMitigationFactory(PeaceAdmin);
-        worldwar = factory.deployPeace(admin, 3 hours, 1 days);
+        worldwar = factory.deployPeace(admin, 3 hours, 1 days,Router);
         //worldwar = new WorldWarIV(admin, 3 hours, 1 days,factory, _id);
         generatevotersArray();
         vm.prank(admin);

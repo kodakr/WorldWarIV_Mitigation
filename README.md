@@ -18,7 +18,7 @@ Examples of solution provided:
 Code is robust.
 ## Project Features
 1. All-purpose nature
-    - Robustly implemented for all heirachy.
+    - Robustly implemented for all demands.
 2. Archive and Transparency
     - Factory automatically tracks and stores result of all instances.
     - 20 years later, can retrieve consensus made today and for all instances.
@@ -37,7 +37,7 @@ Code is robust.
     - Enabling anyone to vote from convinient chain.
 
 ## Developer
-This is a solo-psychic project. developed by a solo team.
+This is a solo, psychic project. developed by a solo team.
 [Project Developer](https://twitter.com/Kodak_Rome)
 
 #### Beware

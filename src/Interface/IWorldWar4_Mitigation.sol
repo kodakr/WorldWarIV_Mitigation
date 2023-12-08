@@ -7,6 +7,10 @@ interface IWorldWar4_Mitigation {
         string Name;
         uint256 VoteCount;
     }
+    struct SignVote {
+    address Self;
+    uint256 CandidateToVote;
+    }
     //address Addr;
 
     function RegisterVoters(address[] memory _voters) external returns (bool);
@@ -19,7 +23,7 @@ interface IWorldWar4_Mitigation {
     function fetchCandidateWithId(uint8 _id) external view returns (Candidate memory);
     function getMaxIndexForCandidates() external view returns (uint256);
     function watchLiveTelevision() external view returns (Candidate[] memory);
-    function batchVoting(bytes[] calldata sig) external;
+    function batchVoting(bytes[]calldata sigArray, SignVote[] memory signedStructArray ) external;
     function votingEndedWithAWinner() external view returns (bool);
     function votingEndedAsDrawOrInconclusive() external view returns (bool);
 }
