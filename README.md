@@ -49,22 +49,29 @@ Code is robust.
     - The V2.0 of this project considers implementing this to automate the `voteSortingAlgorithm()`
     - potentially publishing results automatically if `block.timestamp` == `uint256 public votingEnds;`
 ## Hackathon details
- `address factory = 0x691162D966A43f43700545577d0C3b54E69c95ED;// Not verified`
- `string Chaindeployed = "sepolia;"`
- `string contractName = "WorldWarIVMitigationFactory";`
- `string youtubeLink = "https://youtu.be/C_zT_gC7GKA";`
+ - `address factory = 0x691162D966A43f43700545577d0C3b54E69c95ED;// Not verified`
+ - `string Chaindeployed = "sepolia;"`
+ - `string contractName = "WorldWarIVMitigationFactory";`
+ - `string youtubeLink = "https://youtu.be/C_zT_gC7GKA";`
+## Project Aim
+
+
+<p align = "center">
+    <img src = "img/image-2.png">
+    <h3 align = "center">A peaceful state for all parties</h3>
+</p>
+
+
 
 ## Developer
 This is a solo, psychic project. developed by a solo team.
 [Project Developer](https://twitter.com/Kodak_Rome)
 
 #### Beware
+
 Perhaps unnecessary but worthy of note:
 The impact of this project is not specific to a niche of humans (eg: DeFi) but rather a project impacting all humans currently on earth and will ever be. 
 A gift from the constellations to "The Constellations" as its role in mitigating World War IV. A psychic Intervention. 
 
 ---
-
-
-
 
