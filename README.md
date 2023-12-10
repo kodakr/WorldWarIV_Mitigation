@@ -1,5 +1,9 @@
 # WorldWar4Mitigation
-*“I do not know with what weapons World War III will be fought, but World War IV will be fought with sticks and stones” - Albert Einstein*
+![Alt text](image-1.png)
+*“I do not know with what weapons World War III will be fought, but World War IV will be fought with sticks and stones” - Albert Einstein*.
+
+
+
 
 ## Brief Description
 
@@ -35,10 +39,13 @@ Code is robust.
     - Ensures distinct `bytes32 _uniqueId` for all instances.
 2. **Chainlink CCIP**
     - Enabling anyone to vote from convinient chain.
-## Factory contract
- `address factory = 0x691162D966A43f43700545577d0C3b54E69c95ED;`
+3. **Chainlink Automation** Potential
+    - The V2.0 of this project considers implementing this to automate the `voteSortingAlgorithm()`
+## Hackathon details
+ `address factory = 0x691162D966A43f43700545577d0C3b54E69c95ED;// Not verified`
  `string Chaindeployed = "sepolia;"`
  `string contractName = "WorldWarIVMitigationFactory";`
+ `string youtubeLink = "https://youtu.be/C_zT_gC7GKA";`
 
 ## Developer
 This is a solo, psychic project. developed by a solo team.
@@ -48,7 +55,6 @@ This is a solo, psychic project. developed by a solo team.
 Perhaps unnecessary but worthy of note:
 The impact of this project is not specific to a niche of humans (eg: DeFi) but rather a project impacting all humans currently on earth and will ever be. 
 A gift from the constellations to "The Constellations" as its role in mitigating World War IV. A psychic Intervention. 
-
 
 ---
 

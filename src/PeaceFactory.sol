@@ -7,8 +7,8 @@ import {IWorldWar4_MitigationFactory} from "./interface/IWorldWarIV_MitigationFa
 import {VRFv2Consumer} from "./VRFv2Consumer.sol";
 
 contract WorldWarIVMitigationFactory is IWorldWar4_MitigationFactory {
-    //contract address on sepolia = 0x691162D966A43f43700545577d0C3b54E69c95ED
-
+    //WorldWarIVMitigationFactory contract address on sepolia = 0x691162D966A43f43700545577d0C3b54E69c95ED 
+    // videoLiink https://www.loom.com/share/5dace74a472d4f77803b740e0643a118?sid=89ab2e7f-1448-4dc4-b782-e02174ec19a0
     ///////////////////////////////////////////////////======Custom Datatype======///////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -189,7 +189,8 @@ contract WorldWarIVMitigationFactory is IWorldWar4_MitigationFactory {
 
     }
 
-    //VRFV2Consumer address on Sepolia 0x93fe8684B7083150fDC767d5Cbb9F9cF6d51AfAB
+    //VRF
+    V2Consumer address on Sepolia 0x93fe8684B7083150fDC767d5Cbb9F9cF6d51AfAB (old!)
     // consumer ID 7497
     /**
     @dev this function generates randon Nums from VRFv2. Note that the consumer contract was deployed during initialization.
