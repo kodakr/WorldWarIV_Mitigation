@@ -17,7 +17,7 @@ interface IWorldWar4_Mitigation {
     function RegisterCandidates(string[] memory _candidates) external returns (bool);
     function isVotingCurrentlyOn() external view returns (bool);
     function vote(uint8 _candidateIdOrIndex) external returns (bool);
-    function voteSortingAlgorithm() external returns (bool Won, bool Inconclusive);
+    //function voteSortingAlgorithm() external returns (bool Won, bool Inconclusive);
     function isRegisteredVoter(address _voter) external view returns (bool);
     function revealWinner() external view returns (Candidate memory);
     function fetchCandidateWithId(uint8 _id) external view returns (Candidate memory);

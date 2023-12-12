@@ -116,14 +116,14 @@ contract WorldWarIVMitigationFactory is IWorldWar4_MitigationFactory {
     @param _timeUntilVotingEnds is amount of time (from now) till voting ends. At which no more voting. Only then can `voteSortingAlgorithm()` be called and result displayed.
     @param CCIPRouter address of CCIPRoouter
      */
-    function deployPeace(address _owner, uint256 _timeUntilVotingStarts, uint256 _timeUntilVotingEnds, address CCIPRouter)
+    function deployPeace(address _owner, uint256 _timeUntilVotingStarts, uint256 _timeUntilVotingEnds,uint256 _delayB4Computation, address CCIPRouter)
         public
         payable
         returns (IWorldWar4_Mitigation Peace)
     {
         uint256 cachedMsgValue = msg.value;
         if (cachedMsgValue < minFee) revert InsufficientFee(minFee); //checks fee
-        address newPeace = _deploy(_owner, _timeUntilVotingStarts, _timeUntilVotingEnds,CCIPRouter);
+        address newPeace = _deploy(_owner, _timeUntilVotingStarts, _timeUntilVotingEnds,_delayB4Computation,CCIPRouter);
         Peace = IWorldWar4_Mitigation(newPeace); //returns interface of instance
     }
 
@@ -163,7 +163,7 @@ contract WorldWarIVMitigationFactory is IWorldWar4_MitigationFactory {
     ///////////////////////////////////////////////////======Utils======//////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    function _deploy(address _owner, uint256 _timeUntilVotingStarts, uint256 _timeUntilVotingEnds, address CCIPRouter)
+    function _deploy(address _owner, uint256 _timeUntilVotingStarts, uint256 _timeUntilVotingEnds, uint256 _delayB4Computation, address CCIPRouter)
         internal
         returns (address peace)
     {
@@ -176,7 +176,7 @@ contract WorldWarIVMitigationFactory is IWorldWar4_MitigationFactory {
 
         bytes memory creationCode = abi.encodePacked(
             type(WorldWarIV_Mitigation).creationCode, 
-            abi.encode(_owner, _timeUntilVotingStarts, _timeUntilVotingEnds, this, UniqueId, CCIPRouter)
+            abi.encode(_owner, _timeUntilVotingStarts, _timeUntilVotingEnds, _delayB4Computation, this, UniqueId, CCIPRouter)
         );
         // Just so u know I fuck in assembly too. lol!
         assembly {
@@ -190,7 +190,7 @@ contract WorldWarIVMitigationFactory is IWorldWar4_MitigationFactory {
     }
 
     //VRF
-    V2Consumer address on Sepolia 0x93fe8684B7083150fDC767d5Cbb9F9cF6d51AfAB (old!)
+    //V2Consumer address on Sepolia 0x93fe8684B7083150fDC767d5Cbb9F9cF6d51AfAB (old!)
     // consumer ID 7497
     /**
     @dev this function generates randon Nums from VRFv2. Note that the consumer contract was deployed during initialization.

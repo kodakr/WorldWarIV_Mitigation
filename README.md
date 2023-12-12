@@ -38,7 +38,7 @@ Code is robust.
 5. A "Live Television" feature:
     - Anyone can view current state of consensus while voting is ongoing.
 6. Robust and efficient algos for high performance scenario.
-    - eg: Government elctions.
+    - eg: Massive voting during Government elctions.
 ## Chainlink Integrations
 1. **ChainlinkVRFv2**
     - for unique identification, tracking and future retrieval of all instances.

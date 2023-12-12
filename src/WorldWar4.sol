@@ -8,18 +8,20 @@ import {ECDSA} from "openzeppelin-contracts/contracts/utils/cryptography/ECDSA.s
 import {Client} from "@chainlink/contracts-ccip/src/v0.8/ccip/libraries/Client.sol";
 import {CCIPReceiver} from "@chainlink/contracts-ccip/src/v0.8/ccip/applications/CCIPReceiver.sol";
 
+import "@chainlink/contracts/src/v0.8/automation/AutomationCompatible.sol";
+
 
 //author: https://twitter.com/Kodak_Rome
 
 contract WorldWarIV_Mitigation is CCIPReceiver,EIP712("WorldWar4", "1"), //
-    IWorldWar4_Mitigation 
+    IWorldWar4_Mitigation , AutomationCompatibleInterface
 {
-    ///////////////////////////////////////////////////======Custom Datatype======///////////////////////////////////////////////////
+    ///////////////////////////////////////////////////======Custom Datatype======////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // All custom Data-type are imported Fron interface IWorldWar4_Mitigation
 
-    ///////////////////////////////////////////////////======State Variables======///////////////////////////////////////////////////
+    ///////////////////////////////////////////////////======State Variables======////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     //The total no of options or candidates
@@ -33,6 +35,9 @@ contract WorldWarIV_Mitigation is CCIPReceiver,EIP712("WorldWar4", "1"), //
 
     //Timestamp for voting end
     uint256 public votingEnds;
+
+    //interval before computation and result
+    uint public immutable delayB4Computation;
 
     //total count of allowed voters
     uint public RegisteredVoterCount;
@@ -51,6 +56,8 @@ contract WorldWarIV_Mitigation is CCIPReceiver,EIP712("WorldWar4", "1"), //
 
     //Contracts unique Identifier generated with chainlink VRFv2
     bytes32 contractUniqueDeployID;
+
+    bool consensusReached;
 
     // Candidate or option emerged winner
     Candidate private winner;
@@ -150,16 +157,18 @@ contract WorldWarIV_Mitigation is CCIPReceiver,EIP712("WorldWar4", "1"), //
         address _admin,
         uint256 _timeUntilVotingStarts,
         uint256 _timeUntilVotingEnds,
+        uint256 _delayB4Computation,
         WorldWarIVMitigationFactory _factory,
         bytes32 _uniqueID,
         address Router
-    ) CCIPReceiver(Router){
+    ) CCIPReceiver(Router) {
         // if (numberOfCandidates == 0) revert zeroCandidate();
         if (_timeUntilVotingEnds <= _timeUntilVotingStarts) revert ZeroVotingduration();
         admin = _admin;
         votingStarts = block.timestamp + _timeUntilVotingStarts;
         votingEnds = block.timestamp + _timeUntilVotingEnds;
         worldWarIV_MitigationFactory = _factory;
+        delayB4Computation = _delayB4Computation;
         contractUniqueDeployID = _uniqueID;
     }
     /**
@@ -210,7 +219,7 @@ contract WorldWarIV_Mitigation is CCIPReceiver,EIP712("WorldWar4", "1"), //
         return _vote(_candidateIdOrIndex, msg.sender);
     }
 
-    function voteSortingAlgorithm() external OnlyAdmin afterVotingEnds returns (bool Won, bool Inconclusive) {
+    function voteSortingAlgorithm() internal /*OnlyAdmin*/ afterVotingEnds returns (bool Won, bool Inconclusive) {
         uint256 index;
         forSorting.push(RegisteredCandidates[index]); //pushes to  array in storage (since solidity doesnt `push()` to memory)
         for (uint256 j = 1; j < numberOfCandidates - 1; j++) {
@@ -321,6 +330,20 @@ contract WorldWarIV_Mitigation is CCIPReceiver,EIP712("WorldWar4", "1"), //
     }
     ///////////////////////////////////////////////////======CCIP-Utils======/////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    function checkUpkeep(bytes calldata ) external view override returns (bool upkeepNeeded, bytes memory retData){
+        uint256 cachTime = block.timestamp; //delayB4Computation
+        if((! consensusReached) && cachTime >= (votingEnds + delayB4Computation)){
+            upkeepNeeded = true;
+            retData = hex"";
+        }
+    }
+
+    function performUpkeep(bytes calldata) external override {
+        voteSortingAlgorithm();
+        //make idempotent
+        consensusReached = true;
+    }
 
     function _ccipReceive(Client.Any2EVMMessage memory any2EvmMessage) internal override  {
         uint candidate = abi.decode(any2EvmMessage.data, (uint));
