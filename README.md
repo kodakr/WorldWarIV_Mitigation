@@ -67,6 +67,10 @@ Code is robust.
 This is a solo, psychic project. developed by a solo team.
 [Project Developer](https://twitter.com/Kodak_Rome)
 
+## Yet To Do
+- Include privacy Key
+- Make privacy Optional
+
 #### Beware
 
 Perhaps unnecessary but worthy of note:
