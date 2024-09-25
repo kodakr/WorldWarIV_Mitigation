@@ -49,7 +49,7 @@ Code is robust.
     - The V2.0 of this project considers implementing this to automate the `voteSortingAlgorithm()`
     - potentially publishing results automatically if `block.timestamp` == `uint256 public votingEnds;`
 ## Hackathon details
- - `address factory = 0x691162D966A43f43700545577d0C3b54E69c95ED;// Not verified`
+ - `address factory = 0x691162D966A43f43700545577d0C3b54E69c95ED; // Not verified`
  - `string Chaindeployed = "sepolia;"`
  - `string contractName = "WorldWarIVMitigationFactory";`
  - `string youtubeLink = "https://youtu.be/C_zT_gC7GKA";`
@@ -63,9 +63,11 @@ Code is robust.
 
 
 
-## Developer
-This is a solo, psychic project. developed by a solo team.
-[Project Developer](https://twitter.com/Kodak_Rome)
+## About the Inventor 
+[Henry Obin](https://twitter.com/Kodak_Rome)
+Psychic,
+**Astrologer**,
+
 
 ## Yet To Do
 - Include privacy Key
